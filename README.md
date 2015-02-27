@@ -1,6 +1,8 @@
 GLS parcelshop (for Denmark)
 ============================
 
+[![Build Status](https://travis-ci.org/lsv/glsdk-api.svg)](https://travis-ci.org/lsv/glsdk-api) [![Coverage Status](https://coveralls.io/repos/lsv/glsdk-api/badge.svg)](https://coveralls.io/r/lsv/glsdk-api)
+
 Get parcelshops from either
 
 * A parcelshop number
