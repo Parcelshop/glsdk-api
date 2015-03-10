@@ -18,11 +18,18 @@ class ParcelShop
 {
 
     /**
+     * Webservice url for denmark
+     *
+     * @var string
+     */
+    const DK_WEBSERVICE = 'http://www.gls.dk/webservices_v2/wsPakkeshop.asmx';
+
+    /**
      * HTTP URL
      *
      * @var string
      */
-    const HTTPURL = 'http://www.gls.dk/webservices_v2/wsPakkeshop.asmx';
+    private $url;
 
     /**
      * HTTP client
@@ -35,10 +42,12 @@ class ParcelShop
      * Construct parcel
      *
      * @param Client $client
+     * @param string $url
      */
-    public function __construct(Client $client = null)
+    public function __construct(Client $client = null, $url = self::DK_WEBSERVICE)
     {
         $this->client = ($client ? $client : new Client());
+        $this->url = $url;
     }
 
     /**
@@ -52,7 +61,7 @@ class ParcelShop
     {
         $url = sprintf(
             '%s/GetOneParcelShop?ParcelShopNumber=%s',
-            self::HTTPURL,
+            $this->url,
             $parcelnumber
         );
         try {
@@ -72,7 +81,7 @@ class ParcelShop
     {
         $url = sprintf(
             '%s/GetAllParcelShops',
-            self::HTTPURL
+            $this->url
         );
         $request = $this->client->get($url);
         return $this->generateParcels($request->xml());
@@ -89,7 +98,7 @@ class ParcelShop
     {
         $url = sprintf(
             '%s/GetParcelShopsInZipcode?zipcode=%s',
-            self::HTTPURL,
+            $this->url,
             $zipcode
         );
         $request = $this->client->get($url);
@@ -113,7 +122,7 @@ class ParcelShop
     {
         $url = sprintf(
             '%s/GetNearstParcelShops?street=%s&zipcode=%s&Amount=%s',
-            self::HTTPURL,
+            $this->url,
             $street,
             $zipcode,
             $limit
