@@ -111,7 +111,8 @@ class ParcelShop
 
     /**
      * Get nearest parcels from a address
-     *
+     * Strict. For automated input.
+     * 
      * @param string $street
      * @param string $zipcode
      * @param int $limit
@@ -122,6 +123,37 @@ class ParcelShop
     {
         $url = sprintf(
             '%s/GetNearstParcelShops?street=%s&zipcode=%s&Amount=%s',
+            $this->url,
+            $street,
+            $zipcode,
+            $limit
+        );
+        try {
+            $request = $this->client->get($url);
+            $xml = $request->xml();
+            if (isset($xml->parcelshops) && isset($xml->parcelshops->PakkeshopData)) {
+                return $this->generateParcels($xml->parcelshops->PakkeshopData);
+            }
+            throw new Exceptions\MalformedAddressException($street, $zipcode);
+        } catch (ServerException $e) {
+            throw new Exceptions\MalformedAddressException($street, $zipcode);
+        }
+    }
+
+    /**
+     * Search for nearest parcels from a address
+     * Loose. For human input.
+     *
+     * @param string $street
+     * @param string $zipcode
+     * @param int $limit
+     * @return Entity[]
+     * @throws Exceptions\MalformedAddressException
+     */
+    public function searchParcelshopsNearAddress($street, $zipcode, $limit = 20)
+    {
+        $url = sprintf(
+            '%s/SearchNearestParcelShops?street=%s&zipcode=%s&Amount=%s',
             $this->url,
             $street,
             $zipcode,
