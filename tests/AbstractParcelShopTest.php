@@ -2,16 +2,19 @@
 namespace Lsv\GlsDkTest;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use Lsv\GlsDk\ParcelShop;
 
 abstract class AbstractParcelShopTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
+     * @param MockHandler|null $mock
+     *
      * @return ParcelShop
      */
-    protected function getParser(Mock $mock = null)
+    protected function getParser(MockHandler $mock = null)
     {
         return new ParcelShop($this->getClient($mock));
     }
@@ -21,15 +24,10 @@ abstract class AbstractParcelShopTest extends \PHPUnit_Framework_TestCase
         return file_get_contents(__DIR__ . '/returns/' . $xmlfile);
     }
 
-    protected function getClient(Mock $mock = null)
+    protected function getClient(MockHandler $mock = null)
     {
-        $client = new Client();
-
-        if ($mock) {
-            $client->getEmitter()->attach($mock);
-        }
-
-        return $client;
+        $handler = HandlerStack::create($mock);
+        return new Client(['handler' => $handler]);
     }
 
     protected function getExceptionNamespace($exception)

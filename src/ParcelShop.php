@@ -66,7 +66,7 @@ class ParcelShop
         );
         try {
             $request = $this->client->get($url);
-            return $this->generateParcels($request->xml(), true);
+            return $this->generateParcels($request->getBody(), true);
         } catch (ServerException $e) {
             throw new Exceptions\ParcelNotFoundException($parcelnumber);
         }
@@ -75,7 +75,7 @@ class ParcelShop
     /**
      * Get all parcels in Denmark
      *
-     * @return Parcelshop[]
+     * @return Entity|Entity[]
      */
     public function getAllParcelshops()
     {
@@ -84,7 +84,7 @@ class ParcelShop
             $this->url
         );
         $request = $this->client->get($url);
-        return $this->generateParcels($request->xml());
+        return $this->generateParcels($request->getBody());
     }
 
     /**
@@ -102,7 +102,7 @@ class ParcelShop
             $zipcode
         );
         $request = $this->client->get($url);
-        $parcels = $this->generateParcels($request->xml());
+        $parcels = $this->generateParcels($request->getBody());
         if (! $parcels) {
             throw new Exceptions\NoParcelsFoundInZipcodeException($zipcode);
         }
@@ -112,7 +112,7 @@ class ParcelShop
     /**
      * Get nearest parcels from a address
      * Strict. For automated input.
-     * 
+     *
      * @param string $street
      * @param string $zipcode
      * @param int $limit
@@ -130,7 +130,7 @@ class ParcelShop
         );
         try {
             $request = $this->client->get($url);
-            $xml = $request->xml();
+            $xml = new \SimpleXMLElement($request->getBody());
             if (isset($xml->parcelshops) && isset($xml->parcelshops->PakkeshopData)) {
                 return $this->generateParcels($xml->parcelshops->PakkeshopData);
             }
@@ -161,7 +161,7 @@ class ParcelShop
         );
         try {
             $request = $this->client->get($url);
-            $xml = $request->xml();
+            $xml = new \SimpleXMLElement($request->getBody());
             if (isset($xml->parcelshops) && isset($xml->parcelshops->PakkeshopData)) {
                 return $this->generateParcels($xml->parcelshops->PakkeshopData);
             }
@@ -174,12 +174,16 @@ class ParcelShop
     /**
      * Parse parcels from xml
      *
-     * @param \SimpleXMLElement $xml
+     * @param string $xml
      * @param bool $single
      * @return Entity[]|Entity
      */
-    private function generateParcels(\SimpleXMLElement $xml, $single = false)
+    private function generateParcels($xml, $single = false)
     {
+        if (! $xml instanceof \SimpleXMLElement) {
+            $xml = new \SimpleXMLElement($xml);
+        }
+
         if ($single) {
             $xml = [$xml];
         }

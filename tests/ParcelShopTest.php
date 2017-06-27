@@ -1,9 +1,8 @@
 <?php
 namespace Lsv\GlsDkTest;
 
-use GuzzleHttp\Message\Response;
-use GuzzleHttp\Stream\Stream;
-use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
 
 class ParcelShopTest extends AbstractParcelShopTest
 {
@@ -12,7 +11,7 @@ class ParcelShopTest extends AbstractParcelShopTest
     {
         $this->setExpectedException($this->getExceptionNamespace('ParcelNotFoundException'), '', 210);
 
-        $mock = new Mock([
+        $mock = new MockHandler([
             new Response(500)
         ]);
 
@@ -21,8 +20,8 @@ class ParcelShopTest extends AbstractParcelShopTest
 
     public function test_one_parcel_found()
     {
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('oneparcel.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('oneparcel.xml'))
         ]);
 
         $parcel = $this->getParser($mock)->getParcelshop(123456);
@@ -50,8 +49,8 @@ class ParcelShopTest extends AbstractParcelShopTest
 
     public function test_get_all_parcels()
     {
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('allparcels.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('allparcels.xml'))
         ]);
 
         $parcels = $this->getParser($mock)->getAllParcelshops();
@@ -65,16 +64,16 @@ class ParcelShopTest extends AbstractParcelShopTest
     public function test_get_parcels_from_zipcode_zipcode_not_found()
     {
         $this->setExpectedException($this->getExceptionNamespace('NoParcelsFoundInZipcodeException'), '', 220);
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('parcelszipcode_notfound.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('parcelszipcode_notfound.xml'))
         ]);
         $this->getParser($mock)->getParcelshopsFromZipcode(1000);
     }
 
     public function test_get_parcels_from_zipcode()
     {
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('parcelszipcode.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('parcelszipcode.xml'))
         ]);
 
         $parcels = $this->getParser($mock)->getParcelshopsFromZipcode(1000);
@@ -89,7 +88,7 @@ class ParcelShopTest extends AbstractParcelShopTest
     {
         $this->setExpectedException($this->getExceptionNamespace('MalformedAddressException'), '', 230);
 
-        $mock = new Mock([
+        $mock = new MockHandler([
             new Response(500)
         ]);
 
@@ -99,16 +98,16 @@ class ParcelShopTest extends AbstractParcelShopTest
     public function test_get_nearst_parcels_malformed()
     {
         $this->setExpectedException($this->getExceptionNamespace('MalformedAddressException'), '', 230);
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('nearst_malformed.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('nearst_malformed.xml'))
         ]);
         $this->getParser($mock)->getParcelshopsNearAddress('correct address', 1000);
     }
 
     public function test_get_nearst_parcel()
     {
-        $mock = new Mock([
-            new Response(200, [], Stream::factory($this->getReturnXml('nearstparcels.xml')))
+        $mock = new MockHandler([
+            new Response(200, [], $this->getReturnXml('nearstparcels.xml'))
         ]);
 
         $parcels = $this->getParser($mock)->getParcelshopsNearAddress('correct address', 1000);
